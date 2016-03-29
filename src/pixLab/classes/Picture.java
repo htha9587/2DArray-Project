@@ -3,9 +3,16 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.*;
 import java.util.*;
 import java.util.List; // resolves problem with java.awt.List and java.util.List
+import com.sun.*;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 /**
  * A class that represents a picture.  This class inherits from 
@@ -244,11 +251,81 @@ public class Picture extends SimplePicture
     }
   }
   
-  public void edgeDetection2()
+  public void edgeDetection2(int edgeDist)
   {
+	  Pixel topPixel = null;
+	  Pixel bottomPixel = null;
+	  Pixel rightPixel = null;
+	  Pixel [][] pixels = this.getPixels2D();
+	  Color bottomColor = null;
+	  Color rightColor = null;
 	  
+	  for (int row = 0; row < pixels.length; row++)
+	  {
+	  for (int col = 0; 
+	           col < pixels[0].length-1; col++)
+	      {
+	      topPixel = pixels[row][col];
+	     rightPixel = pixels[row][col+1];
+	     bottomPixel = pixels[row+1][col];
+	      bottomColor = bottomPixel.getColor();
+	      rightColor = rightPixel.getColor();
+	      if ((topPixel.colorDistance(bottomColor) > 
+	      edgeDist) && (topPixel.colorDistance(rightColor)> edgeDist))
+	    	  topPixel.setColor(Color.BLACK);
+	      else
+	    	  topPixel.setColor(Color.WHITE);
+	      }
+	  }
   }
   
+  public void decrypt(int max) 
+	{
+		try
+		{
+			RandomAccessFile data = new RandomAccessFile("gorge.jpg", "rw");
+			long size = data.length();
+			
+			int num = 0;
+			int power = 128;
+			int bits = 8;
+			int count = 0;
+			
+			
+			for(int x=54; x < size; x++)
+			{
+				data.seek(x);
+				byte b = data.readByte();
+				
+				b = (byte) (b & 1);
+				
+				num = num + b * power;
+				bits = bits + 1;
+				power = power /2;
+				
+				if ((bits & 8) == 0 )
+				{
+					char c = (char)num;
+					System.out.print(c);
+					power = 128;
+					num = 0;
+					count = count +1;
+					if (count >= max)
+					{
+						return;
+					}
+				}
+			
+			}
+			data.close();
+		}
+		catch (IOException ex)
+		{
+			
+		}
+		
+	}
+	
   public void keepOnlyBlue()
   {
 	  
@@ -266,13 +343,33 @@ public class Picture extends SimplePicture
   
   public void Negate()
   {
-	  
-  }
+	  int mirrorPoint = 340;
+	    Pixel leftPixel = null;
+	    Pixel rightPixel = null;
+	    int count = 0;
+	    Pixel[][] pixels = this.getPixels2D();
+	    
+	    // loop through the rows
+	    for (int row = 235; row < 323; row++)
+	    {
+	      // loop from 238(col), less than mirrorPoint.
+	      for (int col = 238; col < mirrorPoint; col++)
+	      {
+	           leftPixel = pixels[row][col];      
+	           rightPixel = pixels[row]                       
+	        [mirrorPoint - col + mirrorPoint];
+	        rightPixel.setColor(leftPixel.getColor());
+	      }
+	    }    
+}
+  
   
   public void Grayscale()
   {
-	  
-  }
+	
+  	
+  }    	
+
   
   public void fixUnderwater()
   {
@@ -286,16 +383,58 @@ public class Picture extends SimplePicture
   
   public void mirrorGull()
   {
-	  
+	  int mirrorPoint = 340;
+	    Pixel leftPixel = null;
+	    Pixel rightPixel = null;
+	    int count = 0;
+	    Pixel[][] pixels = this.getPixels2D();
+	    
+	    // loop through the rows
+	    for (int row = 235; row < 323; row++)
+	    {
+	      // loop from 238(col), less than mirrorPoint.
+	      for (int col = 238; col < mirrorPoint; col++)
+	      {
+	           leftPixel = pixels[row][col];      
+	           rightPixel = pixels[row]                       
+	        [mirrorPoint - col + mirrorPoint];
+	        rightPixel.setColor(leftPixel.getColor());
+	      }
+	    }    
   }
   
   public void mirrorDiagonal()
   {
-	  
+	  Pixel [] [] pixels = this.getPixels2D();
+	  Pixel pixel1 = null;
+	  Pixel pixel2 = null;
+	    int width = pixels[0].length;
+	      // loop through the rows
+	    for (int row = 0; row < pixels.length; row++)
+	    {
+	      // loops from col less than the length of the pixels.
+	      for (int col = 0; col < pixels[0].length; col++)
+	      {
+	        if(col < pixels.length)
+            pixel1 = pixels [row][col];
+            pixel2 = pixels [col] [row];
+            pixel1.setColor(pixel2.getColor());
+          }
+	    }
   }
   
-  public void chromaKey()
+  public void chromaKey() throws IOException
   {
+	  Pixel [] [ ] FirstPicture = this.getPixels2D();
+	  Pixel [] [] SecondPicture = new Picture("flower1.jpg").getPixels2D();
+	  
+	  for(int row = 0; row<FirstPicture.length; row++)
+	  {
+		  for(int col = 0; col<SecondPicture.length; col++)
+		  {
+			  
+		  }
+	  }
 	  
   }
   
@@ -328,11 +467,18 @@ public class Picture extends SimplePicture
   /* Main method for testing - each class in Java can have a main 
    * method 
    */
-  public static void main(String[] args) 
+  public static void main(String[] args) throws IOException 
   {
     Picture gorge = new Picture("gorge.jpg");
-    gorge.getBufferedImage();
-    gorge.explore();
+    //gorge.getBufferedImage();
+    gorge.mirrorGull();
+    gorge.chromaKey();
+    gorge.Negate();
+   // gorge.createCollage();
+   // gorge.createGraphics();
+   // gorge.copyPicture(gorge);
+   gorge.explore();
+   // gorge.write("newGorge.jpg");
   }
   
 } // this } is the end of class Picture, put all new methods before this

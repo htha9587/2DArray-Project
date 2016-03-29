@@ -114,7 +114,10 @@ public class PictureTester
    */
   public static void testMirrorGull()
   {
-	  
+	  Picture gull = new Picture("seagull.jpg");
+	  gull.explore();
+	  gull.mirrorGull();
+	  gull.explore();
   }
   
   /** Method to test mirrorDiagonal.
@@ -213,29 +216,29 @@ public class PictureTester
     // uncomment a call here to run a test
     // and comment out the ones you don't want
     // to run
-    testZeroBlue();
-    testZeroRed();
-    testZeroGreen();
-    testKeepOnlyBlue();
-    testKeepOnlyRed();
-    testKeepOnlyGreen();
-    testNegate();
-    testGrayscale();
-    testFixUnderwater();
-    testMirrorVertical();
-    testMirrorTemple();
-    testMirrorArms();
+//    testZeroBlue();
+//    testZeroRed();
+//    testZeroGreen();
+//    testKeepOnlyBlue();
+//    testKeepOnlyRed();
+//    testKeepOnlyGreen();
+//    testNegate();
+//    testGrayscale();
+//    testFixUnderwater();
+//    testMirrorVertical();
+//   testMirrorTemple();
+//    testMirrorArms();
     testMirrorGull();
-    testMirrorDiagonal();
-    testCollage();
-    testCopy();
-    testEdgeDetection();
-    testEdgeDetection2();
-    testChromakey();
-    testEncodeAndDecode();
-    //testGetCountRedOverValue(250);
-    testSetRedToHalfValueInTopHalf();
-    //testClearBlueOverValue(200);
-   // testGetAverageForColumn(0);
+//    testMirrorDiagonal();
+//    testCollage();
+//    testCopy();
+//    testEdgeDetection();
+//    testEdgeDetection2();
+//    testChromakey();
+//    testEncodeAndDecode();
+//    //testGetCountRedOverValue(250);
+//    testSetRedToHalfValueInTopHalf();
+//    //testClearBlueOverValue(200);
+//   // testGetAverageForColumn(0);
   }
 }
