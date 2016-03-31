@@ -10,9 +10,14 @@ import java.io.RandomAccessFile;
 import java.text.*;
 import java.util.*;
 import java.util.List; // resolves problem with java.awt.List and java.util.List
+
 import com.sun.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+
+import java.io.*;
+
 
 /**
  * A class that represents a picture.  This class inherits from 
@@ -411,6 +416,45 @@ public class Picture extends SimplePicture
 	  
   }
   
+  public static BufferedImage encode(BufferedImage carrier, BitInputStream payload) throws IOException
+  {
+	  for (int y=0; y < carrier.getHeight(); y++) {
+		  for (int x=0; x < carrier.getWidth(); x++) {
+			  int pixel = carrier.getRGB(x, y) & 0xFFFCFCFC;
+			  for (int offset = 16; offset >= 0; offset -= 8) {
+				  int bits = payload.readBits(2);
+				  if (bits == -1)
+					  return carrier;
+				  pixel |= bits << offset;
+			  }
+			  carrier.setRGB(x, y, pixel);
+			  }
+		  }
+	  try {
+		throw new Exception("Not enough space.");
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return carrier;
+	  }
+		  
+  public static void decode(BufferedImage carrier, BitInputStream payload) throws IOException {
+  for(int y=0; y < carrier.getHeight(); y++) {
+	  for(int x=0; x < carrier.getWidth(); x++) {
+		  for (int offset = 16; offset >= 0; offset -= 8) {
+			  payload.write(2, (carrier.getRGB(x, y) >> offset) & 0x3);
+			  
+		  }
+	  }
+  }
+  payload.close();
+}
+
+  
+  
+  
+  
   public void getCountRedOverValue()
   {
 	  
@@ -443,6 +487,10 @@ public class Picture extends SimplePicture
     //gorge.getBufferedImage();
     //gorge.mirrorGull();
     gorge.chromaKey(flowers, 1000000000, 0, 0);
+    //BitInputStream payload = null;
+	//ufferedImage carrier = null;
+	//gorge.encode(carrier, payload);
+	//gorge.decode(carrier, payload);
    // gorge.Negate();
    // gorge.createCollage();
    // gorge.createGraphics();
