@@ -25,7 +25,10 @@ public class Picture extends SimplePicture
 {
   ///////////////////// constructors //////////////////////////////////
   
-  /**
+  private static final Pixel[][] Pixel = null;
+
+
+/**
    * Constructor that takes no arguments 
    */
   public Picture ()
@@ -279,52 +282,6 @@ public class Picture extends SimplePicture
 	  }
   }
   
-  public void decrypt(int max) 
-	{
-		try
-		{
-			RandomAccessFile data = new RandomAccessFile("gorge.jpg", "rw");
-			long size = data.length();
-			
-			int num = 0;
-			int power = 128;
-			int bits = 8;
-			int count = 0;
-			
-			
-			for(int x=54; x < size; x++)
-			{
-				data.seek(x);
-				byte b = data.readByte();
-				
-				b = (byte) (b & 1);
-				
-				num = num + b * power;
-				bits = bits + 1;
-				power = power /2;
-				
-				if ((bits & 8) == 0 )
-				{
-					char c = (char)num;
-					System.out.print(c);
-					power = 128;
-					num = 0;
-					count = count +1;
-					if (count >= max)
-					{
-						return;
-					}
-				}
-			
-			}
-			data.close();
-		}
-		catch (IOException ex)
-		{
-			
-		}
-		
-	}
 	
   public void keepOnlyBlue()
   {
@@ -423,21 +380,32 @@ public class Picture extends SimplePicture
 	    }
   }
   
-  public void chromaKey() throws IOException
+  public void chromaKey(Picture target,  int threshold, int targetX, int targetY) throws IOException
   {
-	  Pixel [] [ ] FirstPicture = this.getPixels2D();
-	  Pixel [] [] SecondPicture = new Picture("flower1.jpg").getPixels2D();
-	  
-	  for(int row = 0; row<FirstPicture.length; row++)
-	  {
-		  for(int col = 0; col<SecondPicture.length; col++)
-		  {
-			  
+	  Pixel firstPicture = null;
+	  Pixel secondPicture = null;
+	 
+	  //Columns looped first.
+	  for (int srcX=0, trgX=targetX;
+			  srcX<getWidth() && trgX<target.getWidth();
+			  srcX++, trgX++) {
+		  
+		  //Then rows.
+	  for (int srcY=0, trgY=targetY;
+			  srcY<getHeight() && trgY<target.getHeight();
+			  srcY++, trgY++) {
+		  //Get firstPicture.
+		  firstPicture = this.getPixel(srcX, srcY);
+		  secondPicture = target.getPixel(trgX,trgY);
+		  /*
+		   * If color is within threshold of input color, then pixel won't be copied.
+		   */
+		  if (! (firstPicture.colorDistance(secondPicture.getColor())>threshold)) {
+	  this.getPixel(trgX, trgY).setColor(secondPicture.getColor());
 		  }
 	  }
-	  
+	  } 
   }
-  
   public void EncodeandDecode()
   {
 	  
@@ -469,11 +437,13 @@ public class Picture extends SimplePicture
    */
   public static void main(String[] args) throws IOException 
   {
+	  Picture flowers = new Picture("butterfly1.jpg");
     Picture gorge = new Picture("gorge.jpg");
+    gorge.explore();
     //gorge.getBufferedImage();
-    gorge.mirrorGull();
-    gorge.chromaKey();
-    gorge.Negate();
+    //gorge.mirrorGull();
+    gorge.chromaKey(flowers, 1000000000, 0, 0);
+   // gorge.Negate();
    // gorge.createCollage();
    // gorge.createGraphics();
    // gorge.copyPicture(gorge);
